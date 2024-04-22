@@ -39,30 +39,36 @@ class _MyHomePageState extends State<MyHomePage> {
   void didChangeDependencies() async {
     // TODO: implement didChangeDependencies
     super.didChangeDependencies();
+  }
+
+  void _incrementCounter() async {
     Tflite.loadModel(
-        model: "assets/ssd_mobilenet.tflite",
-        labels: "assets/ssd_mobilenet.txt",
-        numThreads: 1, // defaults to 1
+        model: "assets/best-fp16.tflite",
+        // labels: "assets/ssd_mobilenet.txt",
+
+        //  numThreads: 1, // defaults to 1
         isAsset:
             true, // defaults to true, set to false to load resources outside assets
         useGpuDelegate:
             false // defaults to false, set to true to use GPU delegate
         );
-  }
-
-  void _incrementCounter() async {
     final ImagePicker picker = ImagePicker();
 
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
     if (image != null) {
-      var recognitions = await Tflite.detectObjectOnImage(
-          path: image.path,
-          imageMean: 127.5,
-          imageStd: 127.5,
-          threshold: 0.4,
-          numResultsPerClass: 2,
-          asynch: true);
-      log(recognitions.toString());
+      try {
+        var recognitions = await Tflite.detectObjectOnImage(
+            path: image.path,
+            imageMean: 127.5,
+            imageStd: 127.5,
+            threshold: 0.4,
+            numResultsPerClass: 2,
+            asynch: true);
+        log(recognitions.toString());
+      } catch (e) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(e.toString())));
+      }
     }
   }
 
